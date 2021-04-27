@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+
+	"github.com/spf13/cobra"
 )
 
 var templateString = `
@@ -31,6 +33,38 @@ type Payload struct {
 }
 
 var Data []Payload = []Payload{}
+var dirs []string = []string{}
+
+var command = &cobra.Command{
+	Short: "File encoding generator",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(dirs)
+		tpl, err := template.New("Encoded").Parse(templateString)
+		if err != nil {
+			fmt.Println("Failed to create and parse template ", err)
+		}
+		wg := new(sync.WaitGroup)
+		for _, dir := range dirs {
+			wg.Add(1)
+			go walkDir(dir, wg)
+		}
+		wg.Wait()
+		file, err := os.Create("internal/generated.go")
+		if err != nil {
+			fmt.Sprintf("Failed to open file, %s", err)
+			return
+		}
+		defer file.Close()
+		err = tpl.Execute(file, Data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	},
+}
+
+func init() {
+	command.PersistentFlags().StringSliceVarP(&dirs, "dirs", "d", []string{"templates", "static"}, "Directories to walk through")
+}
 
 // Function to walk through all the files through directory
 // and generate byte sequence to encode
@@ -65,26 +99,8 @@ func walkDir(dir string, wg *sync.WaitGroup) {
 }
 
 func main() {
-	dirs := []string{"templates", "static"}
-	tpl, err := template.New("Encoded").Parse(templateString)
+	err := command.Execute()
 	if err != nil {
-		fmt.Println("Failed to create and parse template ", err)
+		fmt.Println("Error Executing command ", err)
 	}
-	wg := new(sync.WaitGroup)
-	for _, dir := range dirs {
-		wg.Add(1)
-		go walkDir(dir, wg)
-	}
-	wg.Wait()
-	file, err := os.Create("internal/generated.go")
-	if err != nil {
-		fmt.Sprintf("Failed to open file, %s", err)
-		return
-	}
-	defer file.Close()
-	err = tpl.Execute(file, Data)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 }
