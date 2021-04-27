@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/satyamsoni2211/app/internal"
+	"github.com/satyamsoni2211/go_webapp_encoded_files/internal"
 )
 
 func HandleTemplate(name string) (*template.Template, error) {

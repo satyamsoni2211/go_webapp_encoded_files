@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/satyamsoni2211/app/internal"
+	"github.com/satyamsoni2211/go_webapp_encoded_files/internal"
 )
 
 type FileHandler struct {

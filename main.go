@@ -10,7 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/gorilla/mux"
-	"github.com/satyamsoni2211/app/internal/handler"
+	"github.com/satyamsoni2211/go_webapp_encoded_files/internal/handler"
 )
 
 var (
